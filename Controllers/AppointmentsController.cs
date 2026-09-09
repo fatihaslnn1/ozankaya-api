@@ -21,9 +21,16 @@ namespace ozankaya_api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Appointment>>> GetAppointments()
+        public async Task<ActionResult<IEnumerable<Appointment>>> GetAppointments([FromQuery] int? barberId)
         {
-            return await _context.Appointments
+            var query = _context.Appointments.AsQueryable();
+
+            if (barberId.HasValue)
+            {
+                query = query.Where(a => a.BarberId == barberId.Value);
+            }
+
+            return await query
                 .OrderByDescending(a => a.Date)
                 .ThenBy(a => a.Time)
                 .ToListAsync();
