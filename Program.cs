@@ -4,9 +4,18 @@ using ozankaya_api.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Render'daki DATABASE_URL değişkenini veya localdeki appsettings'i otomatik seçer
-var connectionString = builder.Configuration["DATABASE_URL"] 
+var rawConnectionString = builder.Configuration["DATABASE_URL"] 
     ?? builder.Configuration.GetConnectionString("DefaultConnection");
+
+string connectionString = rawConnectionString;
+
+// Render'dan gelen postgresql:// adresini standart Npgsql formatına çevirir
+if (!string.IsNullOrEmpty(rawConnectionString) && rawConnectionString.StartsWith("postgres"))
+    {
+        var databaseUri = new Uri(rawConnectionString);
+        var userInfo = databaseUri.UserInfo.Split(':');
+        connectionString = $"Host={databaseUri.Host};Port={databaseUri.Port};Database={databaseUri.LocalPath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;";
+    }
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
