@@ -1,7 +1,9 @@
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 using Microsoft.EntityFrameworkCore;
 using ozankaya_api.Data;
 using ozankaya_api.Hubs;
+
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
 
