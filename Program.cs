@@ -5,7 +5,7 @@ using ozankaya_api.Hubs;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=ozankaya.db"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddSignalR();
 builder.Services.AddCors(options =>
