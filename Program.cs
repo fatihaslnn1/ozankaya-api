@@ -9,13 +9,15 @@ var rawConnectionString = builder.Configuration["DATABASE_URL"]
 
 string connectionString = rawConnectionString;
 
-// Render'dan gelen postgresql:// adresini standart Npgsql formatına çevirir
 if (!string.IsNullOrEmpty(rawConnectionString) && rawConnectionString.StartsWith("postgres"))
-    {
-        var databaseUri = new Uri(rawConnectionString);
-        var userInfo = databaseUri.UserInfo.Split(':');
-        connectionString = $"Host={databaseUri.Host};Port={databaseUri.Port};Database={databaseUri.LocalPath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;";
-    }
+{
+    var databaseUri = new Uri(rawConnectionString);
+    var userInfo = databaseUri.UserInfo.Split(':');
+    var port = databaseUri.Port > 0 ? databaseUri.Port : 5432;
+    var dbName = databaseUri.LocalPath.TrimStart('/');
+    
+    connectionString = $"Host={databaseUri.Host};Port={port};Database={dbName};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;";
+}
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
